@@ -5,7 +5,7 @@ import { useVideoPlayer } from '@/lib/video';
 import { BahrainScene } from './BahrainScene';
 
 const SCENE_DURATIONS = {
-  bahrain: 8500,
+  bahrain: 999999999,
 };
 
 export default function VideoTemplate() {

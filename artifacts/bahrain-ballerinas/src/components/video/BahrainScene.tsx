@@ -5,97 +5,444 @@ import gsap from 'gsap';
 const LETTERS = ['B', 'A', 'H', 'R', 'A', 'I', 'N'];
 const BAHRAIN_RED = '#CE1126';
 const BAHRAIN_WHITE = '#FFFFFF';
+const N = LETTERS.length;
 
 export function BahrainScene() {
   const containerRef = useRef<HTMLDivElement>(null);
   const blocksRef = useRef<HTMLDivElement[]>([]);
   const particlesRef = useRef<HTMLDivElement[]>([]);
+  const glowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // GSAP Context to easily clean up all animations
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline();
+      const blocks = blocksRef.current;
+      const E = 'power4.inOut';
 
-      // Initial Setup
-      gsap.set(blocksRef.current, { 
-        y: 150, 
-        opacity: 0, 
-        rotationX: -90,
-        rotationZ: -10,
-        scale: 0.3
+      // ─── Initial state ───────────────────────────────────────────
+      gsap.set(blocks, {
+        y: 220, opacity: 0, rotationX: -90,
+        rotationZ: 0, rotationY: 0, scale: 0.3,
       });
-      
       gsap.set(particlesRef.current, {
         x: () => gsap.utils.random(0, window.innerWidth),
         y: () => gsap.utils.random(0, window.innerHeight),
-        scale: () => gsap.utils.random(0.1, 1.2),
-        opacity: () => gsap.utils.random(0.2, 0.9)
+        scale: () => gsap.utils.random(0.1, 1.6),
+        opacity: () => gsap.utils.random(0.05, 0.8),
       });
 
-      // Particle floating "secret sauce"
+      // ─── Secret Sauce: ambient particles drift forever ────────────
       gsap.to(particlesRef.current, {
-        y: '-=150',
-        x: 'random(-100, 100)',
+        y: '-=220',
+        x: 'random(-130, 130)',
         rotation: 'random(-360, 360)',
-        duration: 'random(4, 7)',
+        scale: 'random(0.1, 2)',
+        opacity: 'random(0.05, 0.85)',
+        duration: 'random(3, 9)',
         repeat: -1,
         yoyo: true,
         ease: 'sine.inOut',
-        stagger: {
-          each: 0.05,
-          from: 'random'
-        }
+        stagger: { each: 0.04, from: 'random' },
       });
 
-      // The Ballerina Dance Choreography
-      // 1. Enter the stage
-      tl.to(blocksRef.current, {
-        y: 0,
-        opacity: 1,
-        rotationX: 0,
-        rotationZ: 0,
-        scale: 1,
-        duration: 1.8,
-        ease: 'power4.inOut',
-        stagger: 0.1
-      })
-      // 2. Synchronized Pirouettes and Leaps
-      .to(blocksRef.current, {
-        y: -80,
-        rotationY: 360,
-        scale: 1.1,
-        duration: 1.2,
-        ease: 'power4.inOut',
-        stagger: {
-          each: 0.1,
+      // Glow pulse
+      if (glowRef.current) {
+        gsap.to(glowRef.current, {
+          opacity: 0.25,
+          scale: 1.4,
+          duration: 2.5,
+          repeat: -1,
           yoyo: true,
-          repeat: 1
-        }
-      }, "-=0.2")
-      // 3. The Grand Pause (Synchronized poses)
-      .to(blocksRef.current, {
-        scale: 1.2,
-        rotationZ: () => gsap.utils.random(-15, 15),
-        duration: 1,
-        ease: 'power4.inOut',
-        stagger: 0.05
-      }, "+=0.1")
-      .to(blocksRef.current, {
-        scale: 1,
-        rotationZ: 0,
-        duration: 1,
-        ease: 'power4.inOut'
+          ease: 'sine.inOut',
+        });
+      }
+
+      // ─── Main choreography timeline ──────────────────────────────
+      const tl = gsap.timeline({ repeat: -1 });
+
+      // ════════════════════════════════════════════════════════════
+      // STOP 1 — Grand Entrance: leap from below, staggered
+      // ════════════════════════════════════════════════════════════
+      tl.to(blocks, {
+        y: 0, opacity: 1, rotationX: 0, scale: 1,
+        duration: 1.7, ease: E,
+        stagger: { each: 0.12, from: 'start' },
       })
-      // 4. Graceful Exit
-      .to(blocksRef.current, {
-        y: 150,
+
+      // ════════════════════════════════════════════════════════════
+      // STOP 2 — Settle Bounce: center ripple
+      // ════════════════════════════════════════════════════════════
+      .to(blocks, {
+        y: -18, scale: 1.07,
+        duration: 0.4, ease: E,
+        stagger: { each: 0.07, from: 'center' },
+      }, '+=0.05')
+      .to(blocks, {
+        y: 0, scale: 1,
+        duration: 0.45, ease: E,
+        stagger: { each: 0.06, from: 'center' },
+      })
+
+      // ════════════════════════════════════════════════════════════
+      // ★ GRAND PAUSE 1 — Symmetrical Fan: open like a crown
+      // ════════════════════════════════════════════════════════════
+      .to(blocks, {
+        rotationZ: (i) => (i - 3) * 9,
+        y: (i) => Math.abs(i - 3) * 12,
+        scale: (i) => 1 + (3 - Math.abs(i - 3)) * 0.04,
+        duration: 0.95, ease: E,
+        stagger: { each: 0.07, from: 'center' },
+      }, '+=0.18')
+      .to({}, { duration: 0.95 })
+
+      // ════════════════════════════════════════════════════════════
+      // STOP 3 — Wave Ripple: cascading height left→right→left
+      // ════════════════════════════════════════════════════════════
+      .to(blocks, {
+        rotationZ: 0, y: 0, scale: 1,
+        duration: 0.55, ease: E,
+      })
+      .to(blocks, {
+        y: (i) => -Math.sin((i / (N - 1)) * Math.PI) * 90,
+        duration: 0.75, ease: E,
+        stagger: { each: 0.1, from: 'start' },
+      })
+      .to(blocks, {
+        y: 0,
+        duration: 0.75, ease: E,
+        stagger: { each: 0.1, from: 'end' },
+      })
+
+      // ════════════════════════════════════════════════════════════
+      // STOP 4 — Pirouette Wave: staggered 360° Y-spin + leap
+      // ════════════════════════════════════════════════════════════
+      .to(blocks, {
+        rotationY: '+=360',
+        y: -65, scale: 1.12,
+        duration: 1.05, ease: E,
+        stagger: { each: 0.11, from: 'start' },
+      }, '+=0.1')
+      .to(blocks, {
+        rotationY: '+=360',
+        y: 0, scale: 1,
+        duration: 1.0, ease: E,
+        stagger: { each: 0.1, from: 'end' },
+      })
+
+      // ════════════════════════════════════════════════════════════
+      // ★ GRAND PAUSE 2 — Diamond Tableau: altitude arch
+      // ════════════════════════════════════════════════════════════
+      .to(blocks, {
+        y: (i) => [0, -45, -75, -100, -75, -45, 0][i],
+        rotationZ: (i) => [-22, -12, -5, 0, 5, 12, 22][i],
+        scale: (i) => [0.88, 1.0, 1.06, 1.18, 1.06, 1.0, 0.88][i],
+        duration: 1.05, ease: E,
+        stagger: { each: 0.08, from: 'center' },
+      }, '+=0.18')
+      .to({}, { duration: 1.05 })
+
+      // ════════════════════════════════════════════════════════════
+      // STOP 5 — Diagonal Sway: alternating ±32° lean with yoyo
+      // ════════════════════════════════════════════════════════════
+      .to(blocks, {
+        rotationZ: 0, y: 0, scale: 1,
+        duration: 0.4, ease: E,
+      })
+      .to(blocks, {
+        rotationZ: (i) => i % 2 === 0 ? -32 : 32,
+        y: (i) => i % 2 === 0 ? -28 : 28,
+        duration: 0.65, ease: E,
+        stagger: { each: 0.06, from: 'start' },
+      })
+      .to(blocks, {
+        rotationZ: (i) => i % 2 === 0 ? 32 : -32,
+        y: (i) => i % 2 === 0 ? 28 : -28,
+        duration: 0.65, ease: E,
+        stagger: { each: 0.06, from: 'end' },
+      })
+      .to(blocks, {
+        rotationZ: 0, y: 0,
+        duration: 0.5, ease: E,
+      })
+
+      // ════════════════════════════════════════════════════════════
+      // STOP 6 — Accordion Squeeze: X compress, Y stretch
+      // ════════════════════════════════════════════════════════════
+      .to(blocks, {
+        scaleX: 0.58, scaleY: 1.45,
+        duration: 0.55, ease: E,
+        stagger: { each: 0.07, from: 'center' },
+      }, '+=0.15')
+      .to(blocks, {
+        scaleX: 1.32, scaleY: 0.68,
+        duration: 0.55, ease: E,
+        stagger: { each: 0.07, from: 'edges' },
+      })
+      .to(blocks, {
+        scaleX: 1, scaleY: 1,
+        duration: 0.5, ease: E,
+      })
+
+      // ════════════════════════════════════════════════════════════
+      // ★ GRAND PAUSE 3 — Starburst: each block unique 3D pose
+      // ════════════════════════════════════════════════════════════
+      .to(blocks, {
+        rotationZ: (i) => [-38, 22, -18, 0, 18, -22, 38][i],
+        rotationX: (i) => [12, -18, 22, 0, -22, 18, -12][i],
+        y: (i) => [-18, -55, -35, -90, -35, -55, -18][i],
+        scale: (i) => [1.0, 1.1, 1.0, 1.25, 1.0, 1.1, 1.0][i],
+        duration: 1.1, ease: E,
+        stagger: { each: 0.09, from: 'random' },
+      }, '+=0.18')
+      .to({}, { duration: 1.1 })
+
+      // ════════════════════════════════════════════════════════════
+      // STOP 7 — Counter-Pirouette: reverse spin from end
+      // ════════════════════════════════════════════════════════════
+      .to(blocks, {
+        rotationZ: 0, rotationX: 0, y: 0, scale: 1,
+        duration: 0.5, ease: E,
+      })
+      .to(blocks, {
+        rotationY: '-=360',
+        y: -55, scale: 1.14,
+        duration: 1.05, ease: E,
+        stagger: { each: 0.11, from: 'end' },
+      })
+      .to(blocks, {
+        rotationY: '-=360',
+        y: 0, scale: 1,
+        duration: 1.0, ease: E,
+        stagger: { each: 0.1, from: 'start' },
+      })
+
+      // ════════════════════════════════════════════════════════════
+      // STOP 8 — Zigzag Jump: odd/even altitude alternation
+      // ════════════════════════════════════════════════════════════
+      .to(blocks, {
+        y: (i) => i % 2 === 0 ? -95 : 22,
+        scale: (i) => i % 2 === 0 ? 1.12 : 0.88,
+        duration: 0.68, ease: E,
+        stagger: { each: 0.07, from: 'start' },
+      }, '+=0.1')
+      .to(blocks, {
+        y: (i) => i % 2 === 0 ? 22 : -95,
+        scale: (i) => i % 2 === 0 ? 0.88 : 1.12,
+        duration: 0.68, ease: E,
+        stagger: { each: 0.07, from: 'end' },
+      })
+      .to(blocks, {
+        y: 0, scale: 1,
+        duration: 0.5, ease: E,
+      })
+
+      // ════════════════════════════════════════════════════════════
+      // ★ GRAND PAUSE 4 — Outward Lean: spread from center
+      // ════════════════════════════════════════════════════════════
+      .to(blocks, {
+        x: (i) => (i - 3) * 18,
+        rotationZ: (i) => (i - 3) * -11,
+        y: (i) => Math.abs(i - 3) * 18,
+        scale: 1.06,
+        duration: 1.0, ease: E,
+        stagger: { each: 0.08, from: 'center' },
+      }, '+=0.18')
+      .to({}, { duration: 0.95 })
+
+      // ════════════════════════════════════════════════════════════
+      // STOP 9 — Scale Burst: explosive pop from center out
+      // ════════════════════════════════════════════════════════════
+      .to(blocks, {
+        x: 0, rotationZ: 0, y: 0, scale: 1,
+        duration: 0.4, ease: E,
+      })
+      .to(blocks, {
+        scale: 1.55,
+        duration: 0.28, ease: E,
+        stagger: { each: 0.045, from: 'center' },
+      })
+      .to(blocks, {
+        scale: 0.65,
+        duration: 0.28, ease: E,
+        stagger: { each: 0.045, from: 'edges' },
+      })
+      .to(blocks, {
+        scale: 1,
+        duration: 0.5, ease: E,
+      })
+
+      // ════════════════════════════════════════════════════════════
+      // STOP 10 — Cascade Waterfall: sequential drop then rise
+      // ════════════════════════════════════════════════════════════
+      .to(blocks, {
+        y: 90,
+        duration: 0.48, ease: E,
+        stagger: { each: 0.13, from: 'start' },
+      }, '+=0.1')
+      .to(blocks, {
+        y: -75, scale: 1.1,
+        duration: 0.48, ease: E,
+        stagger: { each: 0.13, from: 'end' },
+      })
+      .to(blocks, {
+        y: 0, scale: 1,
+        duration: 0.55, ease: E,
+        stagger: { each: 0.08, from: 'center' },
+      })
+
+      // ════════════════════════════════════════════════════════════
+      // ★ GRAND PAUSE 5 — Inward Bow: all lean to center hero
+      // ════════════════════════════════════════════════════════════
+      .to(blocks, {
+        rotationZ: (i) => i < 3 ? 20 + (3 - i) * 5 : i > 3 ? -(20 + (i - 3) * 5) : 0,
+        y: (i) => i === 3 ? -50 : Math.abs(i - 3) * 5,
+        scale: (i) => i === 3 ? 1.35 : 1.0,
+        duration: 1.05, ease: E,
+        stagger: { each: 0.07, from: 'edges' },
+      }, '+=0.18')
+      .to({}, { duration: 1.0 })
+
+      // ════════════════════════════════════════════════════════════
+      // STOP 11 — Kaleidoscope: mixed-axis rotations
+      // ════════════════════════════════════════════════════════════
+      .to(blocks, {
+        rotationZ: 0, y: 0, scale: 1,
+        duration: 0.42, ease: E,
+      })
+      .to(blocks, {
+        rotationX: (i) => i % 2 === 0 ? 360 : -360,
+        rotationY: (i) => i % 3 === 0 ? 360 : i % 3 === 1 ? -360 : 180,
+        duration: 1.25, ease: E,
+        stagger: { each: 0.09, from: 'random' },
+      })
+      .to(blocks, {
+        rotationX: 0, rotationY: 0,
+        duration: 0.6, ease: E,
+      })
+
+      // ════════════════════════════════════════════════════════════
+      // STOP 12 — Rolling Sine Wave: smooth undulation
+      // ════════════════════════════════════════════════════════════
+      .to(blocks, {
+        y: -65,
+        duration: 0.65, ease: E,
+        stagger: { each: 0.1, from: 'start', repeat: 1, yoyo: true },
+      }, '+=0.1')
+
+      // ════════════════════════════════════════════════════════════
+      // ★ GRAND PAUSE 6 — Tall & Proud: elongated salute pose
+      // ════════════════════════════════════════════════════════════
+      .to(blocks, {
+        y: 0, scale: 1,
+        duration: 0.45, ease: E,
+      })
+      .to(blocks, {
+        scaleY: 1.35, scaleX: 0.82, y: -12,
+        duration: 0.82, ease: E,
+        stagger: { each: 0.07, from: 'center' },
+      }, '+=0.15')
+      .to({}, { duration: 1.05 })
+
+      // ════════════════════════════════════════════════════════════
+      // STOP 13 — Ripple Scatter: random-origin bounce
+      // ════════════════════════════════════════════════════════════
+      .to(blocks, {
+        scaleY: 1, scaleX: 1, y: 0,
+        duration: 0.4, ease: E,
+      })
+      .to(blocks, {
+        y: (i) => [-50, 30, -70, 10, -70, 30, -50][i],
+        x: (i) => [-15, 10, -8, 0, 8, -10, 15][i],
+        scale: (i) => [1.05, 0.92, 1.08, 1.0, 1.08, 0.92, 1.05][i],
+        duration: 0.7, ease: E,
+        stagger: { each: 0.07, from: 'random' },
+      })
+      .to(blocks, {
+        y: 0, x: 0, scale: 1,
+        duration: 0.65, ease: E,
+        stagger: { each: 0.07, from: 'center' },
+      })
+
+      // ════════════════════════════════════════════════════════════
+      // ★ GRAND PAUSE 7 — Final Tableau: epic ensemble scatter
+      // ════════════════════════════════════════════════════════════
+      .to(blocks, {
+        y: (i) => [-65, 18, -88, -42, -88, 18, -65][i],
+        x: (i) => [-22, -12, -5, 0, 5, 12, 22][i],
+        rotationZ: (i) => [-16, 11, -21, 0, 21, -11, 16][i],
+        scale: (i) => [1.0, 1.1, 1.16, 1.22, 1.16, 1.1, 1.0][i],
+        duration: 1.15, ease: E,
+        stagger: { each: 0.09, from: 'random' },
+      }, '+=0.18')
+      .to({}, { duration: 1.15 })
+
+      // ════════════════════════════════════════════════════════════
+      // STOP 14 — Final Bow: rotateX forward tilt + snap back
+      // ════════════════════════════════════════════════════════════
+      .to(blocks, {
+        x: 0, y: 0, rotationZ: 0, scale: 1,
+        duration: 0.45, ease: E,
+      })
+      .to(blocks, {
+        rotationX: 50, y: 32, scale: 0.82,
+        duration: 0.82, ease: E,
+        stagger: { each: 0.09, from: 'center' },
+      })
+      .to(blocks, {
+        rotationX: 0, y: 0, scale: 1,
+        duration: 0.82, ease: E,
+        stagger: { each: 0.07, from: 'edges' },
+      })
+
+      // ════════════════════════════════════════════════════════════
+      // STOP 15 — Double Pirouette finale: fast double-spin
+      // ════════════════════════════════════════════════════════════
+      .to(blocks, {
+        rotationY: '+=720',
+        y: -80,
+        scale: 1.18,
+        duration: 1.2, ease: E,
+        stagger: { each: 0.08, from: 'center' },
+      }, '+=0.1')
+      .to(blocks, {
+        y: 0, scale: 1,
+        duration: 0.6, ease: E,
+      })
+
+      // ════════════════════════════════════════════════════════════
+      // ★ GRAND PAUSE 8 — Final Stand: all upright, shimmer hold
+      // ════════════════════════════════════════════════════════════
+      .to(blocks, {
+        y: 0, scale: 1.06, rotationZ: 0,
+        duration: 0.7, ease: E,
+        stagger: { each: 0.06, from: 'start' },
+      }, '+=0.15')
+      .to({}, { duration: 1.0 })
+      .to(blocks, {
+        scale: 1,
+        duration: 0.5, ease: E,
+      })
+
+      // ════════════════════════════════════════════════════════════
+      // GRAND EXIT — fly off in alternating directions
+      // ════════════════════════════════════════════════════════════
+      .to(blocks, {
+        y: (i) => i % 2 === 0 ? -window.innerHeight * 1.2 : window.innerHeight * 1.2,
+        x: (i) => (i - 3) * 120,
         opacity: 0,
-        rotationX: 90,
+        scale: 0.2,
+        rotationZ: (i) => (i - 3) * 35,
+        rotationY: (i) => i % 2 === 0 ? 360 : -360,
+        duration: 1.45, ease: E,
+        stagger: { each: 0.09, from: 'random' },
+      }, '+=0.35')
+
+      // ─── Reset for next loop ───────────────────────────────────
+      .set(blocks, {
+        y: 220, x: 0, opacity: 0,
+        rotationX: -90, rotationY: 0, rotationZ: 0,
         scale: 0.3,
-        duration: 1.5,
-        ease: 'power4.inOut',
-        stagger: 0.1
-      }, "+=0.5");
+      })
+      .to({}, { duration: 0.4 });
 
     }, containerRef);
 
@@ -103,45 +450,94 @@ export function BahrainScene() {
   }, []);
 
   return (
-    <motion.div 
+    <motion.div
       ref={containerRef}
       className="absolute inset-0 flex items-center justify-center overflow-hidden"
-      style={{ backgroundColor: '#0A0A0A' }}
+      style={{ backgroundColor: '#080808' }}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 1 }}
+      transition={{ duration: 0.8 }}
     >
-      {/* Dynamic ambient background */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(206,17,38,0.15)_0%,_transparent_70%)]" />
+      {/* Multi-layer ambient glow */}
+      <div
+        ref={glowRef}
+        className="absolute inset-0 opacity-12"
+        style={{
+          background:
+            'radial-gradient(ellipse 70% 50% at 50% 55%, rgba(206,17,38,0.22) 0%, transparent 70%)',
+          scale: 1,
+        }}
+      />
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            'radial-gradient(ellipse 40% 30% at 20% 75%, rgba(206,17,38,0.08) 0%, transparent 55%)',
+        }}
+      />
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            'radial-gradient(ellipse 40% 30% at 80% 25%, rgba(255,255,255,0.04) 0%, transparent 55%)',
+        }}
+      />
 
-      {/* Secret Sauce Particles */}
-      {Array.from({ length: 80 }).map((_, i) => (
-        <div
-          key={`particle-${i}`}
-          ref={el => { if (el) particlesRef.current[i] = el; }}
-          className="absolute w-3 h-3 rounded-full shadow-[0_0_10px_currentColor]"
-          style={{
-            backgroundColor: i % 3 === 0 ? BAHRAIN_WHITE : BAHRAIN_RED,
-            color: i % 3 === 0 ? BAHRAIN_WHITE : BAHRAIN_RED,
-            filter: 'blur(1px)'
-          }}
-        />
-      ))}
+      {/* ─── Secret Sauce: 110 layered particles ─── */}
+      {Array.from({ length: 110 }).map((_, i) => {
+        const tier = i % 5;
+        const size = tier === 0 ? 10 : tier === 1 ? 6 : tier === 2 ? 4 : tier === 3 ? 2 : 1;
+        const isWhite = i % 4 === 0;
+        const blur = tier === 0 ? 0 : tier === 4 ? 2 : 0.5;
+        return (
+          <div
+            key={`particle-${i}`}
+            ref={el => { if (el) particlesRef.current[i] = el; }}
+            className="absolute rounded-full pointer-events-none"
+            style={{
+              width: size,
+              height: size,
+              backgroundColor: isWhite ? BAHRAIN_WHITE : BAHRAIN_RED,
+              boxShadow: isWhite
+                ? `0 0 ${size * 4}px rgba(255,255,255,0.9)`
+                : `0 0 ${size * 3}px rgba(206,17,38,0.9)`,
+              filter: `blur(${blur}px)`,
+            }}
+          />
+        );
+      })}
 
-      {/* The 7 Blocks (Ballerinas) */}
-      <div className="relative z-10 flex gap-4 md:gap-8" style={{ perspective: 1200 }}>
+      {/* ─── The 7 Ballerina Blocks ─── */}
+      <div
+        className="relative z-10 flex"
+        style={{
+          gap: 'clamp(10px, 1.5vw, 28px)',
+          perspective: 1400,
+        }}
+      >
         {LETTERS.map((letter, i) => (
           <div
             key={`${letter}-${i}`}
             ref={el => { if (el) blocksRef.current[i] = el; }}
-            className="flex items-center justify-center w-16 h-24 md:w-28 md:h-40 rounded-2xl text-5xl md:text-7xl font-black tracking-tighter"
+            className="flex items-center justify-center font-black select-none"
             style={{
-              background: `linear-gradient(135deg, ${BAHRAIN_RED} 0%, #800000 100%)`,
+              width: 'clamp(50px, 7vw, 108px)',
+              height: 'clamp(74px, 10.5vw, 158px)',
+              fontSize: 'clamp(28px, 4vw, 70px)',
+              borderRadius: 'clamp(10px, 1.4vw, 18px)',
+              background: `linear-gradient(148deg, #F0182F 0%, ${BAHRAIN_RED} 38%, #9A0018 100%)`,
               color: BAHRAIN_WHITE,
-              boxShadow: `0 20px 40px rgba(206, 17, 38, 0.4), inset 0 2px 0 rgba(255, 255, 255, 0.3)`,
-              border: `1px solid rgba(255, 255, 255, 0.1)`,
-              transformStyle: 'preserve-3d'
+              boxShadow: `
+                0 28px 55px rgba(206,17,38,0.5),
+                0 6px 18px rgba(206,17,38,0.35),
+                inset 0 2px 0 rgba(255,255,255,0.38),
+                inset 0 -3px 0 rgba(0,0,0,0.25)
+              `,
+              border: '1.5px solid rgba(255,255,255,0.14)',
+              transformStyle: 'preserve-3d',
+              letterSpacing: '-0.02em',
+              textShadow: '0 2px 8px rgba(0,0,0,0.4)',
             }}
           >
             {letter}
