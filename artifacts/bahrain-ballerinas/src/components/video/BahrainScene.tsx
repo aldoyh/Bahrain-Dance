@@ -7,6 +7,11 @@ const BAHRAIN_RED = '#CE1126';
 const BAHRAIN_WHITE = '#FFFFFF';
 const N = LETTERS.length;
 
+// Rio 2016 Artistic Swimming — inspired move set
+// Sources: Platform Lift, Stack Lift (Human Tower), Airborne Lift,
+//          Ballet Leg Figure, Vertical Figure, Barracuda, Eggbeater,
+//          Geometric Pattern Formations, Deck Work poses
+
 export function BahrainScene() {
   const containerRef = useRef<HTMLDivElement>(null);
   const blocksRef = useRef<HTMLDivElement[]>([]);
@@ -22,6 +27,7 @@ export function BahrainScene() {
       gsap.set(blocks, {
         y: 220, opacity: 0, rotationX: -90,
         rotationZ: 0, rotationY: 0, scale: 0.3,
+        scaleX: 1, scaleY: 1,
       });
       gsap.set(particlesRef.current, {
         x: () => gsap.utils.random(0, window.innerWidth),
@@ -47,8 +53,8 @@ export function BahrainScene() {
       // Glow pulse
       if (glowRef.current) {
         gsap.to(glowRef.current, {
-          opacity: 0.25,
-          scale: 1.4,
+          opacity: 0.28,
+          scale: 1.5,
           duration: 2.5,
           repeat: -1,
           yoyo: true,
@@ -60,30 +66,33 @@ export function BahrainScene() {
       const tl = gsap.timeline({ repeat: -1 });
 
       // ════════════════════════════════════════════════════════════
-      // STOP 1 — Grand Entrance: leap from below, staggered
+      // STOP 1 — Deck Work Entrance (Artistic Swimming: deck poses)
+      // Blocks rise one-by-one like swimmers walking to poolside
       // ════════════════════════════════════════════════════════════
       tl.to(blocks, {
         y: 0, opacity: 1, rotationX: 0, scale: 1,
         duration: 1.7, ease: E,
-        stagger: { each: 0.12, from: 'start' },
+        stagger: { each: 0.13, from: 'start' },
       })
 
       // ════════════════════════════════════════════════════════════
-      // STOP 2 — Settle Bounce: center ripple
+      // STOP 2 — Eggbeater Bob (continuous alternating float)
+      // Mimics the eggbeater kick that keeps swimmers afloat
       // ════════════════════════════════════════════════════════════
       .to(blocks, {
-        y: -18, scale: 1.07,
-        duration: 0.4, ease: E,
-        stagger: { each: 0.07, from: 'center' },
+        y: (i) => i % 2 === 0 ? -22 : 22,
+        duration: 0.45, ease: E,
+        stagger: { each: 0.06, from: 'start' },
       }, '+=0.05')
       .to(blocks, {
-        y: 0, scale: 1,
+        y: (i) => i % 2 === 0 ? 22 : -22,
         duration: 0.45, ease: E,
-        stagger: { each: 0.06, from: 'center' },
+        stagger: { each: 0.06, from: 'end' },
       })
+      .to(blocks, { y: 0, duration: 0.35, ease: E })
 
       // ════════════════════════════════════════════════════════════
-      // ★ GRAND PAUSE 1 — Symmetrical Fan: open like a crown
+      // ★ GRAND PAUSE 1 — Symmetrical Fan (Deck Work formation)
       // ════════════════════════════════════════════════════════════
       .to(blocks, {
         rotationZ: (i) => (i - 3) * 9,
@@ -91,45 +100,42 @@ export function BahrainScene() {
         scale: (i) => 1 + (3 - Math.abs(i - 3)) * 0.04,
         duration: 0.95, ease: E,
         stagger: { each: 0.07, from: 'center' },
-      }, '+=0.18')
+      }, '+=0.15')
       .to({}, { duration: 0.95 })
 
       // ════════════════════════════════════════════════════════════
-      // STOP 3 — Wave Ripple: cascading height left→right→left
+      // STOP 3 — Barracuda Sweep (traveling figure, left to right)
+      // Rapid forward-traveling move with stagger from one end
       // ════════════════════════════════════════════════════════════
+      .to(blocks, { rotationZ: 0, y: 0, scale: 1, duration: 0.5, ease: E })
       .to(blocks, {
-        rotationZ: 0, y: 0, scale: 1,
-        duration: 0.55, ease: E,
+        y: -85, scaleY: 1.2, scaleX: 0.85,
+        duration: 0.6, ease: E,
+        stagger: { each: 0.09, from: 'start' },
       })
       .to(blocks, {
-        y: (i) => -Math.sin((i / (N - 1)) * Math.PI) * 90,
-        duration: 0.75, ease: E,
-        stagger: { each: 0.1, from: 'start' },
-      })
-      .to(blocks, {
-        y: 0,
-        duration: 0.75, ease: E,
-        stagger: { each: 0.1, from: 'end' },
+        y: 0, scaleY: 1, scaleX: 1,
+        duration: 0.6, ease: E,
+        stagger: { each: 0.09, from: 'end' },
       })
 
       // ════════════════════════════════════════════════════════════
-      // STOP 4 — Pirouette Wave: staggered 360° Y-spin + leap
+      // STOP 4 — Pirouette Wave (staggered 360° Y-spin + leap)
       // ════════════════════════════════════════════════════════════
       .to(blocks, {
-        rotationY: '+=360',
-        y: -65, scale: 1.12,
+        rotationY: '+=360', y: -65, scale: 1.12,
         duration: 1.05, ease: E,
         stagger: { each: 0.11, from: 'start' },
       }, '+=0.1')
       .to(blocks, {
-        rotationY: '+=360',
-        y: 0, scale: 1,
+        rotationY: '+=360', y: 0, scale: 1,
         duration: 1.0, ease: E,
         stagger: { each: 0.1, from: 'end' },
       })
 
       // ════════════════════════════════════════════════════════════
-      // ★ GRAND PAUSE 2 — Diamond Tableau: altitude arch
+      // ★ GRAND PAUSE 2 — Diamond Tableau (Platform Formation)
+      // Like the platform lift: center high, sides supporting below
       // ════════════════════════════════════════════════════════════
       .to(blocks, {
         y: (i) => [0, -45, -75, -100, -75, -45, 0][i],
@@ -141,49 +147,40 @@ export function BahrainScene() {
       .to({}, { duration: 1.05 })
 
       // ════════════════════════════════════════════════════════════
-      // STOP 5 — Diagonal Sway: alternating ±32° lean with yoyo
+      // STOP 5 — Ballet Leg Figure (one leg perfectly vertical)
+      // Blocks elongate tall and narrow — the signature ballet leg
       // ════════════════════════════════════════════════════════════
+      .to(blocks, { rotationZ: 0, y: 0, scale: 1, duration: 0.4, ease: E })
       .to(blocks, {
-        rotationZ: 0, y: 0, scale: 1,
-        duration: 0.4, ease: E,
+        scaleY: 1.9, scaleX: 0.55, y: -25,
+        duration: 0.8, ease: E,
+        stagger: { each: 0.07, from: 'center' },
+      }, '+=0.12')
+      .to(blocks, {
+        scaleY: 1, scaleX: 1, y: 0,
+        duration: 0.7, ease: E,
+        stagger: { each: 0.06, from: 'edges' },
       })
+
+      // ════════════════════════════════════════════════════════════
+      // STOP 6 — Diagonal Sway (synchronized side-to-side lean)
+      // ════════════════════════════════════════════════════════════
       .to(blocks, {
         rotationZ: (i) => i % 2 === 0 ? -32 : 32,
         y: (i) => i % 2 === 0 ? -28 : 28,
         duration: 0.65, ease: E,
         stagger: { each: 0.06, from: 'start' },
-      })
+      }, '+=0.12')
       .to(blocks, {
         rotationZ: (i) => i % 2 === 0 ? 32 : -32,
         y: (i) => i % 2 === 0 ? 28 : -28,
         duration: 0.65, ease: E,
         stagger: { each: 0.06, from: 'end' },
       })
-      .to(blocks, {
-        rotationZ: 0, y: 0,
-        duration: 0.5, ease: E,
-      })
+      .to(blocks, { rotationZ: 0, y: 0, duration: 0.5, ease: E })
 
       // ════════════════════════════════════════════════════════════
-      // STOP 6 — Accordion Squeeze: X compress, Y stretch
-      // ════════════════════════════════════════════════════════════
-      .to(blocks, {
-        scaleX: 0.58, scaleY: 1.45,
-        duration: 0.55, ease: E,
-        stagger: { each: 0.07, from: 'center' },
-      }, '+=0.15')
-      .to(blocks, {
-        scaleX: 1.32, scaleY: 0.68,
-        duration: 0.55, ease: E,
-        stagger: { each: 0.07, from: 'edges' },
-      })
-      .to(blocks, {
-        scaleX: 1, scaleY: 1,
-        duration: 0.5, ease: E,
-      })
-
-      // ════════════════════════════════════════════════════════════
-      // ★ GRAND PAUSE 3 — Starburst: each block unique 3D pose
+      // ★ GRAND PAUSE 3 — Starburst 3D (individual poses hold)
       // ════════════════════════════════════════════════════════════
       .to(blocks, {
         rotationZ: (i) => [-38, 22, -18, 0, 18, -22, 38][i],
@@ -196,27 +193,37 @@ export function BahrainScene() {
       .to({}, { duration: 1.1 })
 
       // ════════════════════════════════════════════════════════════
-      // STOP 7 — Counter-Pirouette: reverse spin from end
+      // STOP 7 — Vertical Figure (body inverted, legs above water)
+      // Blocks tip backward (rotateX 160°) — the "vertical" figure
       // ════════════════════════════════════════════════════════════
+      .to(blocks, { rotationZ: 0, rotationX: 0, y: 0, scale: 1, duration: 0.5, ease: E })
       .to(blocks, {
-        rotationZ: 0, rotationX: 0, y: 0, scale: 1,
-        duration: 0.5, ease: E,
+        rotationX: 160, y: 20, scaleY: 1.25, scaleX: 0.75,
+        duration: 0.9, ease: E,
+        stagger: { each: 0.08, from: 'center' },
       })
       .to(blocks, {
-        rotationY: '-=360',
-        y: -55, scale: 1.14,
-        duration: 1.05, ease: E,
-        stagger: { each: 0.11, from: 'end' },
-      })
-      .to(blocks, {
-        rotationY: '-=360',
-        y: 0, scale: 1,
-        duration: 1.0, ease: E,
-        stagger: { each: 0.1, from: 'start' },
+        rotationX: 0, y: 0, scaleY: 1, scaleX: 1,
+        duration: 0.85, ease: E,
+        stagger: { each: 0.07, from: 'edges' },
       })
 
       // ════════════════════════════════════════════════════════════
-      // STOP 8 — Zigzag Jump: odd/even altitude alternation
+      // STOP 8 — Back Tuck Somersault (spin + tuck + return)
+      // ════════════════════════════════════════════════════════════
+      .to(blocks, {
+        rotationY: '-=360', scale: 0.75, y: -40,
+        duration: 0.9, ease: E,
+        stagger: { each: 0.1, from: 'end' },
+      }, '+=0.1')
+      .to(blocks, {
+        rotationY: '-=360', scale: 1, y: 0,
+        duration: 0.9, ease: E,
+        stagger: { each: 0.09, from: 'start' },
+      })
+
+      // ════════════════════════════════════════════════════════════
+      // STOP 9 — Zigzag Jump (odd/even altitude separation)
       // ════════════════════════════════════════════════════════════
       .to(blocks, {
         y: (i) => i % 2 === 0 ? -95 : 22,
@@ -230,13 +237,10 @@ export function BahrainScene() {
         duration: 0.68, ease: E,
         stagger: { each: 0.07, from: 'end' },
       })
-      .to(blocks, {
-        y: 0, scale: 1,
-        duration: 0.5, ease: E,
-      })
+      .to(blocks, { y: 0, scale: 1, duration: 0.5, ease: E })
 
       // ════════════════════════════════════════════════════════════
-      // ★ GRAND PAUSE 4 — Outward Lean: spread from center
+      // ★ GRAND PAUSE 4 — Outward Lean (spread from center)
       // ════════════════════════════════════════════════════════════
       .to(blocks, {
         x: (i) => (i - 3) * 18,
@@ -249,48 +253,132 @@ export function BahrainScene() {
       .to({}, { duration: 0.95 })
 
       // ════════════════════════════════════════════════════════════
-      // STOP 9 — Scale Burst: explosive pop from center out
+      // ╔══════════════════════════════════════════════════════════╗
+      // ║         ★★★ HUMAN TOWER (Stack Lift) ★★★               ║
+      // ║  Rio 2016 signature: flyer launches to maximum height   ║
+      // ║  Bases crouch, center flyer rockets skyward             ║
+      // ╚══════════════════════════════════════════════════════════╝
+      // Phase 1: Outer bases crouch low, inner pushers ready
       // ════════════════════════════════════════════════════════════
       .to(blocks, {
-        x: 0, rotationZ: 0, y: 0, scale: 1,
-        duration: 0.4, ease: E,
+        x: 0, rotationZ: 0, y: 0, scale: 1, scaleX: 1, scaleY: 1,
+        duration: 0.45, ease: E,
       })
+      // Phase 2 — Bases crouch & compress (outer blocks = base lifters)
+      .to(blocks, {
+        y: (i) => i === 3 ? -8 : i === 2 || i === 4 ? 18 : i === 1 || i === 5 ? 28 : 35,
+        scaleY: (i) => i === 3 ? 1.1 : i === 2 || i === 4 ? 0.9 : 0.8,
+        scaleX: (i) => i === 3 ? 0.95 : i === 2 || i === 4 ? 1.05 : 1.12,
+        rotationZ: (i) => i === 0 ? 8 : i === 6 ? -8 : i === 1 ? 5 : i === 5 ? -5 : 0,
+        duration: 0.75, ease: E,
+        stagger: { each: 0.06, from: 'edges' },
+      }, '+=0.2')
+      // Phase 3 — LAUNCH: flyer (index 3 = "R") rockets to maximum altitude
+      .to(blocks[3], {
+        y: -195, scaleY: 1.55, scaleX: 0.7,
+        duration: 0.65, ease: E,
+      }, '+=0.05')
+      // Phase 4 — Hold the tower peak (bases strain, flyer triumphant)
+      .to({}, { duration: 1.2 })
+      // Phase 5 — Airborne Lift variation: flyer spins at the peak
+      .to(blocks[3], {
+        rotationY: '+=360', scale: 1.3,
+        duration: 0.8, ease: E,
+      })
+      .to({}, { duration: 0.4 })
+      // Phase 6 — Controlled descent: flyer lands, bases rise
+      .to(blocks[3], {
+        y: 0, scaleY: 1, scaleX: 1, rotationY: 0, scale: 1,
+        duration: 0.9, ease: E,
+      })
+      .to(blocks, {
+        y: 0, scaleY: 1, scaleX: 1, rotationZ: 0, scale: 1,
+        duration: 0.7, ease: E,
+        stagger: { each: 0.06, from: 'edges' },
+      }, '-=0.4')
+
+      // ════════════════════════════════════════════════════════════
+      // ★ GRAND PAUSE 5 after Tower — Triumphant Fan Hold
+      // All blocks celebrate the tower with a wide proud fan
+      // ════════════════════════════════════════════════════════════
+      .to(blocks, {
+        y: (i) => i === 3 ? -55 : Math.abs(i - 3) * 8,
+        scale: (i) => i === 3 ? 1.3 : 1.02,
+        rotationZ: (i) => (i - 3) * 7,
+        duration: 1.0, ease: E,
+        stagger: { each: 0.07, from: 'center' },
+      }, '+=0.2')
+      .to({}, { duration: 1.1 })
+
+      // ════════════════════════════════════════════════════════════
+      // STOP 10 — Platform Formation (Platform Lift pose)
+      // All 7 align to a horizontal shelf: flat even heights
+      // ════════════════════════════════════════════════════════════
+      .to(blocks, { y: 0, rotationZ: 0, scale: 1, duration: 0.45, ease: E })
+      .to(blocks, {
+        y: (i) => Math.abs(Math.sin((i / (N - 1)) * Math.PI)) * -50 - 20,
+        scaleY: 0.82, scaleX: 1.12,
+        duration: 0.8, ease: E,
+        stagger: { each: 0.06, from: 'center' },
+      }, '+=0.15')
+      .to(blocks, {
+        y: 0, scaleY: 1, scaleX: 1,
+        duration: 0.65, ease: E,
+        stagger: { each: 0.07, from: 'edges' },
+      })
+
+      // ════════════════════════════════════════════════════════════
+      // STOP 11 — Accordion Squeeze (tub figure: wide, flat)
+      // ════════════════════════════════════════════════════════════
+      .to(blocks, {
+        scaleX: 0.58, scaleY: 1.45,
+        duration: 0.55, ease: E,
+        stagger: { each: 0.07, from: 'center' },
+      }, '+=0.15')
+      .to(blocks, {
+        scaleX: 1.32, scaleY: 0.68,
+        duration: 0.55, ease: E,
+        stagger: { each: 0.07, from: 'edges' },
+      })
+      .to(blocks, { scaleX: 1, scaleY: 1, duration: 0.5, ease: E })
+
+      // ════════════════════════════════════════════════════════════
+      // STOP 12 — Kaleidoscope (mixed-axis rotations, free figures)
+      // ════════════════════════════════════════════════════════════
+      .to(blocks, {
+        rotationX: (i) => i % 2 === 0 ? 360 : -360,
+        rotationY: (i) => i % 3 === 0 ? 360 : i % 3 === 1 ? -360 : 180,
+        duration: 1.25, ease: E,
+        stagger: { each: 0.09, from: 'random' },
+      }, '+=0.12')
+      .to(blocks, { rotationX: 0, rotationY: 0, duration: 0.6, ease: E })
+
+      // ════════════════════════════════════════════════════════════
+      // STOP 13 — Scale Burst (Airborne Lift: explosive pop)
+      // ════════════════════════════════════════════════════════════
       .to(blocks, {
         scale: 1.55,
         duration: 0.28, ease: E,
         stagger: { each: 0.045, from: 'center' },
-      })
+      }, '+=0.1')
       .to(blocks, {
         scale: 0.65,
         duration: 0.28, ease: E,
         stagger: { each: 0.045, from: 'edges' },
       })
-      .to(blocks, {
-        scale: 1,
-        duration: 0.5, ease: E,
-      })
+      .to(blocks, { scale: 1, duration: 0.5, ease: E })
 
       // ════════════════════════════════════════════════════════════
-      // STOP 10 — Cascade Waterfall: sequential drop then rise
+      // STOP 14 — Rolling Sine Wave (Barracuda ripple return)
       // ════════════════════════════════════════════════════════════
       .to(blocks, {
-        y: 90,
-        duration: 0.48, ease: E,
-        stagger: { each: 0.13, from: 'start' },
+        y: -65,
+        duration: 0.65, ease: E,
+        stagger: { each: 0.1, from: 'start', repeat: 1, yoyo: true },
       }, '+=0.1')
-      .to(blocks, {
-        y: -75, scale: 1.1,
-        duration: 0.48, ease: E,
-        stagger: { each: 0.13, from: 'end' },
-      })
-      .to(blocks, {
-        y: 0, scale: 1,
-        duration: 0.55, ease: E,
-        stagger: { each: 0.08, from: 'center' },
-      })
 
       // ════════════════════════════════════════════════════════════
-      // ★ GRAND PAUSE 5 — Inward Bow: all lean to center hero
+      // ★ GRAND PAUSE 6 — Inward Bow (all lean to center hero)
       // ════════════════════════════════════════════════════════════
       .to(blocks, {
         rotationZ: (i) => i < 3 ? 20 + (3 - i) * 5 : i > 3 ? -(20 + (i - 3) * 5) : 0,
@@ -302,39 +390,9 @@ export function BahrainScene() {
       .to({}, { duration: 1.0 })
 
       // ════════════════════════════════════════════════════════════
-      // STOP 11 — Kaleidoscope: mixed-axis rotations
+      // ★ GRAND PAUSE 7 — Tall & Proud (Ballet Leg salute pose)
       // ════════════════════════════════════════════════════════════
-      .to(blocks, {
-        rotationZ: 0, y: 0, scale: 1,
-        duration: 0.42, ease: E,
-      })
-      .to(blocks, {
-        rotationX: (i) => i % 2 === 0 ? 360 : -360,
-        rotationY: (i) => i % 3 === 0 ? 360 : i % 3 === 1 ? -360 : 180,
-        duration: 1.25, ease: E,
-        stagger: { each: 0.09, from: 'random' },
-      })
-      .to(blocks, {
-        rotationX: 0, rotationY: 0,
-        duration: 0.6, ease: E,
-      })
-
-      // ════════════════════════════════════════════════════════════
-      // STOP 12 — Rolling Sine Wave: smooth undulation
-      // ════════════════════════════════════════════════════════════
-      .to(blocks, {
-        y: -65,
-        duration: 0.65, ease: E,
-        stagger: { each: 0.1, from: 'start', repeat: 1, yoyo: true },
-      }, '+=0.1')
-
-      // ════════════════════════════════════════════════════════════
-      // ★ GRAND PAUSE 6 — Tall & Proud: elongated salute pose
-      // ════════════════════════════════════════════════════════════
-      .to(blocks, {
-        y: 0, scale: 1,
-        duration: 0.45, ease: E,
-      })
+      .to(blocks, { rotationZ: 0, y: 0, scale: 1, duration: 0.4, ease: E })
       .to(blocks, {
         scaleY: 1.35, scaleX: 0.82, y: -12,
         duration: 0.82, ease: E,
@@ -343,12 +401,9 @@ export function BahrainScene() {
       .to({}, { duration: 1.05 })
 
       // ════════════════════════════════════════════════════════════
-      // STOP 13 — Ripple Scatter: random-origin bounce
+      // STOP 15 — Ripple Scatter (pattern transition)
       // ════════════════════════════════════════════════════════════
-      .to(blocks, {
-        scaleY: 1, scaleX: 1, y: 0,
-        duration: 0.4, ease: E,
-      })
+      .to(blocks, { scaleY: 1, scaleX: 1, y: 0, duration: 0.4, ease: E })
       .to(blocks, {
         y: (i) => [-50, 30, -70, 10, -70, 30, -50][i],
         x: (i) => [-15, 10, -8, 0, 8, -10, 15][i],
@@ -356,14 +411,10 @@ export function BahrainScene() {
         duration: 0.7, ease: E,
         stagger: { each: 0.07, from: 'random' },
       })
-      .to(blocks, {
-        y: 0, x: 0, scale: 1,
-        duration: 0.65, ease: E,
-        stagger: { each: 0.07, from: 'center' },
-      })
+      .to(blocks, { y: 0, x: 0, scale: 1, duration: 0.65, ease: E, stagger: { each: 0.07, from: 'center' } })
 
       // ════════════════════════════════════════════════════════════
-      // ★ GRAND PAUSE 7 — Final Tableau: epic ensemble scatter
+      // ★ GRAND PAUSE 8 — Final Tableau (epic ensemble)
       // ════════════════════════════════════════════════════════════
       .to(blocks, {
         y: (i) => [-65, 18, -88, -42, -88, 18, -65][i],
@@ -376,12 +427,9 @@ export function BahrainScene() {
       .to({}, { duration: 1.15 })
 
       // ════════════════════════════════════════════════════════════
-      // STOP 14 — Final Bow: rotateX forward tilt + snap back
+      // STOP 16 — Final Bow (rotateX forward tilt + snap back)
       // ════════════════════════════════════════════════════════════
-      .to(blocks, {
-        x: 0, y: 0, rotationZ: 0, scale: 1,
-        duration: 0.45, ease: E,
-      })
+      .to(blocks, { x: 0, y: 0, rotationZ: 0, scale: 1, duration: 0.45, ease: E })
       .to(blocks, {
         rotationX: 50, y: 32, scale: 0.82,
         duration: 0.82, ease: E,
@@ -394,22 +442,17 @@ export function BahrainScene() {
       })
 
       // ════════════════════════════════════════════════════════════
-      // STOP 15 — Double Pirouette finale: fast double-spin
+      // STOP 17 — Double Pirouette Finale (720° fast spin)
       // ════════════════════════════════════════════════════════════
       .to(blocks, {
-        rotationY: '+=720',
-        y: -80,
-        scale: 1.18,
+        rotationY: '+=720', y: -80, scale: 1.18,
         duration: 1.2, ease: E,
         stagger: { each: 0.08, from: 'center' },
       }, '+=0.1')
-      .to(blocks, {
-        y: 0, scale: 1,
-        duration: 0.6, ease: E,
-      })
+      .to(blocks, { y: 0, scale: 1, duration: 0.6, ease: E })
 
       // ════════════════════════════════════════════════════════════
-      // ★ GRAND PAUSE 8 — Final Stand: all upright, shimmer hold
+      // ★ GRAND PAUSE 9 — Final Stand (shimmer upright hold)
       // ════════════════════════════════════════════════════════════
       .to(blocks, {
         y: 0, scale: 1.06, rotationZ: 0,
@@ -417,10 +460,7 @@ export function BahrainScene() {
         stagger: { each: 0.06, from: 'start' },
       }, '+=0.15')
       .to({}, { duration: 1.0 })
-      .to(blocks, {
-        scale: 1,
-        duration: 0.5, ease: E,
-      })
+      .to(blocks, { scale: 1, duration: 0.5, ease: E })
 
       // ════════════════════════════════════════════════════════════
       // GRAND EXIT — fly off in alternating directions
@@ -440,7 +480,7 @@ export function BahrainScene() {
       .set(blocks, {
         y: 220, x: 0, opacity: 0,
         rotationX: -90, rotationY: 0, rotationZ: 0,
-        scale: 0.3,
+        scale: 0.3, scaleX: 1, scaleY: 1,
       })
       .to({}, { duration: 0.4 });
 
@@ -466,7 +506,6 @@ export function BahrainScene() {
         style={{
           background:
             'radial-gradient(ellipse 70% 50% at 50% 55%, rgba(206,17,38,0.22) 0%, transparent 70%)',
-          scale: 1,
         }}
       />
       <div
