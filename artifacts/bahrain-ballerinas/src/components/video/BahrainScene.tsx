@@ -7,6 +7,46 @@ const BAHRAIN_RED = '#CE1126';
 const BAHRAIN_WHITE = '#FFFFFF';
 const N = LETTERS.length;
 
+// ─── Per-block red shade palette ──────────────────────────────────────────
+// 7 distinct shades, all staying within the red family (no orange, no pink)
+const BLOCK_STYLES = [
+  { // B — Vivid Scarlet (brightest, welcoming opener)
+    bg:     'linear-gradient(148deg, #FF2B3E 0%, #D4112A 38%, #8C0010 100%)',
+    shadow: 'rgba(212, 17, 42, 0.55)',
+    glow:   'rgba(255, 43, 62, 0.30)',
+  },
+  { // A — Deep Carmine (rich, dark)
+    bg:     'linear-gradient(148deg, #C41030 0%, #96001E 38%, #60000F 100%)',
+    shadow: 'rgba(150, 0, 30, 0.55)',
+    glow:   'rgba(196, 16, 48, 0.28)',
+  },
+  { // H — Ruby Red (classic gem red)
+    bg:     'linear-gradient(148deg, #E81830 0%, #C41228 38%, #820016 100%)',
+    shadow: 'rgba(196, 18, 40, 0.55)',
+    glow:   'rgba(232, 24, 48, 0.28)',
+  },
+  { // R — Inferno (center flyer — hottest, most intense)
+    bg:     'linear-gradient(148deg, #FF3550 0%, #E21030 38%, #A0001A 100%)',
+    shadow: 'rgba(226, 16, 48, 0.65)',
+    glow:   'rgba(255, 53, 80, 0.35)',
+  },
+  { // A — Crimson (deep, regal)
+    bg:     'linear-gradient(148deg, #DA1535 0%, #B00F2A 38%, #780018 100%)',
+    shadow: 'rgba(176, 15, 42, 0.55)',
+    glow:   'rgba(218, 21, 53, 0.28)',
+  },
+  { // I — Vermilion (bright, clean)
+    bg:     'linear-gradient(148deg, #F42040 0%, #CC0E28 38%, #880016 100%)',
+    shadow: 'rgba(204, 14, 40, 0.55)',
+    glow:   'rgba(244, 32, 64, 0.30)',
+  },
+  { // N — Dark Rose-Red (darkest, grounding finale)
+    bg:     'linear-gradient(148deg, #C91030 0%, #A0081E 38%, #6A000C 100%)',
+    shadow: 'rgba(160, 8, 30, 0.55)',
+    glow:   'rgba(201, 16, 48, 0.26)',
+  },
+];
+
 // ─── Bahrain Flag Particle Grid ────────────────────────────────────────────
 // Flag anatomy: white stripe (left) + 5 serrated teeth pointing into red (right)
 // Standard Bahrain flag ratio: white occupies ~25%, zigzag teeth tip to ~35%
@@ -93,47 +133,50 @@ export function BahrainScene() {
       // ══════════════════════════════════════════════════════════
       const tl = gsap.timeline({ repeat: -1 });
 
-      // STOP 1 — Deck Work Entrance
+      // ── Slow-motion multiplier for first 3 moves ──────────────
+      const SM = 2.5;
+
+      // STOP 1 — Deck Work Entrance  [SLOW MOTION ×2.5]
       tl.to(blocks, {
         y: 0, opacity: 1, rotationX: 0, scale: 1,
-        duration: 1.7, ease: E,
-        stagger: { each: 0.13, from: 'start' },
+        duration: 1.7 * SM, ease: E,
+        stagger: { each: 0.13 * SM, from: 'start' },
       })
 
-      // STOP 2 — Eggbeater Bob
+      // STOP 2 — Eggbeater Bob  [SLOW MOTION ×2.5]
       .to(blocks, {
         y: (i) => i % 2 === 0 ? -22 : 22,
-        duration: 0.45, ease: E,
-        stagger: { each: 0.06, from: 'start' },
-      }, '+=0.05')
+        duration: 0.45 * SM, ease: E,
+        stagger: { each: 0.06 * SM, from: 'start' },
+      }, `+=${0.05 * SM}`)
       .to(blocks, {
         y: (i) => i % 2 === 0 ? 22 : -22,
-        duration: 0.45, ease: E,
-        stagger: { each: 0.06, from: 'end' },
+        duration: 0.45 * SM, ease: E,
+        stagger: { each: 0.06 * SM, from: 'end' },
       })
-      .to(blocks, { y: 0, duration: 0.35, ease: E })
+      .to(blocks, { y: 0, duration: 0.35 * SM, ease: E })
 
-      // ★ GRAND PAUSE 1 — Symmetrical Fan
+      // ★ GRAND PAUSE 1 — Symmetrical Fan  [SLOW MOTION ×2.5]
       .to(blocks, {
         rotationZ: (i) => (i - 3) * 9,
         y: (i) => Math.abs(i - 3) * 12,
         scale: (i) => 1 + (3 - Math.abs(i - 3)) * 0.04,
-        duration: 0.95, ease: E,
-        stagger: { each: 0.07, from: 'center' },
-      }, '+=0.15')
-      .to({}, { duration: 0.95 })
+        duration: 0.95 * SM, ease: E,
+        stagger: { each: 0.07 * SM, from: 'center' },
+      }, `+=${0.15 * SM}`)
+      .to({}, { duration: 0.95 * SM })
 
-      // STOP 3 — Barracuda Sweep
-      .to(blocks, { rotationZ: 0, y: 0, scale: 1, duration: 0.5, ease: E })
+      // STOP 3 — Barracuda Sweep  [SLOW MOTION ×2.5]
+      .to(blocks, { rotationZ: 0, y: 0, scale: 1, duration: 0.5 * SM, ease: E })
       .to(blocks, {
         y: -85, scaleY: 1.2, scaleX: 0.85,
-        duration: 0.6, ease: E,
-        stagger: { each: 0.09, from: 'start' },
+        duration: 0.6 * SM, ease: E,
+        stagger: { each: 0.09 * SM, from: 'start' },
       })
       .to(blocks, {
         y: 0, scaleY: 1, scaleX: 1,
-        duration: 0.6, ease: E,
-        stagger: { each: 0.09, from: 'end' },
+        duration: 0.6 * SM, ease: E,
+        stagger: { each: 0.09 * SM, from: 'end' },
       })
 
       // STOP 4 — Pirouette Wave
@@ -489,11 +532,11 @@ export function BahrainScene() {
               height: 'clamp(74px, 10.5vw, 158px)',
               fontSize: 'clamp(28px, 4vw, 70px)',
               borderRadius: 'clamp(10px, 1.4vw, 18px)',
-              background: `linear-gradient(148deg, #F0182F 0%, ${BAHRAIN_RED} 38%, #9A0018 100%)`,
+              background: BLOCK_STYLES[i].bg,
               color: BAHRAIN_WHITE,
               boxShadow: `
-                0 28px 55px rgba(206,17,38,0.5),
-                0 6px 18px rgba(206,17,38,0.35),
+                0 28px 55px ${BLOCK_STYLES[i].shadow},
+                0 6px 18px ${BLOCK_STYLES[i].glow},
                 inset 0 2px 0 rgba(255,255,255,0.38),
                 inset 0 -3px 0 rgba(0,0,0,0.25)
               `,
